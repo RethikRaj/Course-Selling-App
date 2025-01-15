@@ -7,9 +7,11 @@ const { adminRouter } = require('./routes/admin');
 
 const app = express();
 
-app.use("api/v1/user", userRouter);
-app.use("api/v1/course",courseRouter);
-app.use("api/v1/admin",adminRouter);
+app.use(express.json());
+
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/course",courseRouter);
+app.use("/api/v1/admin",adminRouter);
 
 const startServer = async ()=>{
     const mongoURI = process.env.MONGODB_URI;
