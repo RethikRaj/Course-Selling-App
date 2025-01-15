@@ -12,6 +12,7 @@ function userAuth (req,res,next){
         next();
     }catch(err){
         console.log(err.message);
+        res.status(403).json({message : "invalid token"});
     }
 }
 

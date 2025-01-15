@@ -1,8 +1,9 @@
 const {Router} = require('express');
-const {adminModel} = require('../models/db');
+const {adminModel, courseModel} = require('../models/db');
 const jwt = require('jsonwebtoken');
 const {z} = require('zod');
 const bcrypt = require('bcrypt');
+const { adminAuth } = require('../middlewares/adminAuth');
 require('dotenv').config({path : "../../.env"});
 const JWT_ADMIN_SECRET = process.env.JWT_ADMIN_SECRET;
 
@@ -122,19 +123,35 @@ adminRouter.post("/signin",async (req,res)=>{
     }
 })
 
-adminRouter.get("/course",(req,res)=>{
+
+adminRouter.get("/course",adminAuth, async (req,res)=>{
     
 })
 
-adminRouter.post("/course",(req,res)=>{
+adminRouter.post("/course",adminAuth,async (req,res)=>{
+    const adminId = req.adminId;
+    const {title , description , price, imageUrl } = req.body;
+
+    try{
+        const course = await courseModel.create({
+            title : title, 
+            description : description,
+            price : price, 
+            imageUrl : imageUrl,
+            creatorId : adminId
+        })
+
+        res.json({message : "Course created successfully ", courseId : course._id})
+    }catch(err){
+        res.json({message : "Internal server error"});
+    }
+})
+
+adminRouter.put("/course",adminAuth,(req,res)=>{
     
 })
 
-adminRouter.put("/course",(req,res)=>{
-    
-})
-
-adminRouter.delete("/course",(req,res)=>{
+adminRouter.delete("/course",adminAuth,(req,res)=>{
     
 })
 
