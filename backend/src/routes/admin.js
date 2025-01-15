@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const {z} = require('zod');
 const bcrypt = require('bcrypt');
 const { adminAuth } = require('../middlewares/adminAuth');
-require('dotenv').config({path : "../../.env"});
+
 const JWT_ADMIN_SECRET = process.env.JWT_ADMIN_SECRET;
 
 const adminRouter = Router();

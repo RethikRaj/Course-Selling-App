@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-require('dotenv').config({path : "../../.env"});
 
 const JWT_ADMIN_SECRET  = process.env.JWT_ADMIN_SECRET;
 
