@@ -1,8 +1,9 @@
 const { Router } = require('express');
-const { userModel } = require('../models/db');
+const { userModel, purchaseModel, courseModel } = require('../models/db');
 const bcrypt = require('bcrypt');
 const {z} = require('zod');
 const jwt = require('jsonwebtoken');
+const { userAuth } = require('../middlewares/userAuth');
 const JWT_USER_SECRET = process.env.JWT_USER_SECRET;
 
 const userRouter = Router();
@@ -121,8 +122,25 @@ userRouter.post("/signin",async (req,res)=>{
     }
 })
 
-userRouter.get("/purchases",(req,res)=>{
+userRouter.get("/purchases",userAuth, async (req,res)=>{
+    const userId = req.userId;
+    try{
+        const purchasedCourses = await purchaseModel.find({
+            userId : userId
+        })
 
+        const coursesData = await courseModel.find({
+            _id : {$in : purchasedCourses.map((purchasedCourse) => purchasedCourse.courseId)}
+        })
+
+        res.json({
+            coursesData
+        });
+
+    }catch(err){
+        console.log(err);
+        res.status(403).json({message : "internal server error"});
+    }
 })
 
 module.exports = {
