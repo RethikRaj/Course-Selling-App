@@ -123,9 +123,20 @@ adminRouter.post("/signin",async (req,res)=>{
     }
 })
 
-
 adminRouter.get("/course",adminAuth, async (req,res)=>{
-    
+    const adminId = req.adminId;
+
+    try{
+        const courses = await courseModel.find({
+            creatorId : adminId
+        })
+
+        res.json({
+            courses : courses
+        })
+    }catch(err){
+        res.status(403).json({message : "internal server error"});
+    }
 })
 
 adminRouter.post("/course",adminAuth,async (req,res)=>{
@@ -147,12 +158,72 @@ adminRouter.post("/course",adminAuth,async (req,res)=>{
     }
 })
 
-adminRouter.put("/course",adminAuth,(req,res)=>{
-    
+adminRouter.put("/course",adminAuth,async (req,res)=>{
+    const adminId = req.adminId;
+
+    const {title, description, price, imageUrl, courseId} = req.body;
+
+    try{
+        const course = await courseModel.findOne({
+            _id : courseId
+        })
+
+        if(course.creatorId.toString() !== adminId){
+            res.status(403).json({
+                message : "You cannnot update the course created by someone else."
+            })
+            return;
+        }
+
+        const updatedCourse = await courseModel.updateOne({
+            _id : courseId,
+            creatorId : adminId // this is not needed as i have checked before this but still ...
+        },{
+            title : title, 
+            description : description, 
+            price: price, 
+            imageUrl : imageUrl
+        })
+
+        res.json({
+            message : "Course Updated",
+            courseId : updatedCourse._id
+        })
+    }catch(err){
+        console.log(err.message);
+        res.status(403).json({message : "Internal server error"});
+    }
+
 })
 
-adminRouter.delete("/course",adminAuth,(req,res)=>{
-    
+adminRouter.delete("/course",adminAuth,async (req,res)=>{
+    const adminId = req.adminId;
+    const {courseId} = req.body;
+
+    try{
+        const course = await courseModel.findOne({
+            _id : courseId
+        })
+
+        if(course.creatorId.toString() !== adminId){
+            res.status(403).json({
+                message : "You cannnot delete the course created by someone else."
+            })
+            return;
+        }
+
+        await courseModel.deleteOne({
+            _id : courseId
+        })
+
+        res.json({
+            message : "course deleted successfully"
+        })
+    }catch(err){
+        req.status(403).json({
+            message : "internal server error"
+        })
+    }
 })
 
 module.exports = {
